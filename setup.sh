@@ -5,4 +5,4 @@ python -m virtualenv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
 
-echo -e "To activate the virtual envarontment run: \n`source ./venv/bin/activate`\n"
+echo -e "To activate the virtual envarontment run: \n\n'source ./venv/bin/activate'\n"
