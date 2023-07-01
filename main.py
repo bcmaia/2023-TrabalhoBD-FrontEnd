@@ -31,24 +31,26 @@ def parse_params (params : list[str]):
             hungry_param += ' ' + i[0 : (len(i) - 1)]
             myParams.append(hungry_param)
             hungry_param = ''
-        elif hungry_flag:
-            if '--' == i[:2]: raise Exception('[ERRO] Esperava um valor, e não outra flag.')
-            myFlags[hungry_flag] = i
-            hungry_flag = ''
+        
 
         elif ("'" == i[0] or '"' == i[0]) and ("'" == i[-1] or '"' == i[-1]):
             myParams.append(i[1:(len(i) - 1)])
 
-        elif "'" == i[0] or '"' == i[0]:
+        elif "'" == i[0] or '"' == i[0]: # implicit and not ("'" == i[-1] or '"' == i[-1])
             hungry_param = i[1:]
 
+        elif hungry_flag:
+            if '--' == i[:2]: raise Exception('[ERRO] Esperava um valor, e não outra flag.')
+            myFlags[hungry_flag] = i
+            hungry_flag = ''
+        
         elif '--by-' == i[:5]:
             myFlags[i] = True
             hungry_flag = i
 
         elif '--' == i[:2]:
             myFlags[i] = True
-            
+
         else:
             myParams.append(i)
 
