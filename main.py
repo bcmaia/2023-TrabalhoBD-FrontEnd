@@ -24,10 +24,9 @@ def parse_params (params : list[str]):
     hungry_flag = ''
 
     for i in params[1:]:
-        if "'" == i[0] or '"' == i[0]:
-            hungry_param = i[1:]
-        elif hungry_param and not ("'" == i[-1] or '"' == i[-1]):
+        if hungry_param and not ("'" == i[-1] or '"' == i[-1]):
             hungry_param += ' ' + i
+        
         elif hungry_param and ("'" == i[-1] or '"' == i[-1]):
             hungry_param += ' ' + i[0 : (len(i) - 1)]
             myParams.append(hungry_param)
@@ -36,11 +35,20 @@ def parse_params (params : list[str]):
             if '--' == i[:2]: raise Exception('[ERRO] Esperava um valor, e não outra flag.')
             myFlags[hungry_flag] = i
             hungry_flag = ''
+
+        elif ("'" == i[0] or '"' == i[0]) and ("'" == i[-1] or '"' == i[-1]):
+            myParams.append(i[1:(len(i) - 1)])
+
+        elif "'" == i[0] or '"' == i[0]:
+            hungry_param = i[1:]
+
         elif '--by-' == i[:5]:
             myFlags[i] = True
             hungry_flag = i
+
         elif '--' == i[:2]:
             myFlags[i] = True
+            
         else:
             myParams.append(i)
 
