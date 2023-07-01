@@ -15,15 +15,24 @@ print(' pronto!\n\n', end='')
 # Parse params
 # Lê uma string e analiza os parametros, filtrando --flags.
 def parse_params (params : list[str]):
-    if not params: return ({}, [])
+    if not params: return {'flags': {}, 'params': []}
 
     myFlags = {}
     myParams = []
 
+    hungry_param = ''
     hungry_flag = ''
 
     for i in params[1:]:
-        if hungry_flag:
+        if "'" == i[0] or '"' == i[0]:
+            hungry_param = i[1:]
+        elif hungry_param and not ("'" == i[-1] or '"' == i[-1]):
+            hungry_param += ' ' + i
+        elif hungry_param and ("'" == i[-1] or '"' == i[-1]):
+            hungry_param += ' ' + i[0 : (len(i) - 1)]
+            myParams.append(hungry_param)
+            hungry_param = ''
+        elif hungry_flag:
             if '--' == i[:2]: raise Exception('[ERRO] Esperava um valor, e não outra flag.')
             myFlags[hungry_flag] = i
             hungry_flag = ''
@@ -154,7 +163,6 @@ def list_func (params : list[str], flags : dict[str, any]):
 
     print('SITES: ')
     print('\n'.join([f'{i}: {v}' for i, v in enumerate(result)]))
-    
 
 
 # DELETE SITE
@@ -202,7 +210,8 @@ commands = {
         'f': hello, 
     },
     'search': {
-        'h': 'Busca um site em nossa base de dados.',
+        'h': 'Busca um site em nossa base de dados. Use "search site_url" ou'
+                + ' "search --by-dono site_dono" ou "search --by-nome site_dono"',
         'f': search, 
     },
     'list' : {
@@ -210,18 +219,33 @@ commands = {
         'f': list_func, 
     },
     'debug': {
-        'h': 'Ativa e desativa o modo de debug.',
+        'h': 'Ativa e desativa o modo de debug. Use "debug true" para ativar e'
+                + ' "debug false" para desativar.',
         'f': set_debug,
     },
     'insert': {
-        'h': 'Cadastra um novo site.',
+        'h': 'Cadastra um novo site. Use "insert site_url site_nome site_dono"'
+                + ' para inserir um novo site.',
         'f': insert,
     },
     'delete': {
-        'h': 'Deleta um site.',
+        'h': 'Deleta um site por meio de sua url. Use "delete site_url" ou'
+                + ' "delete --by-dono site_dono" ou "delete --by-nome site_dono".',
         'f': delete,
     },
+    'help': {
+        'h': 'Precisa de ajuda?',
+        'f': noop,
+    },
 }
+
+
+def help (params : list[str], flags : dict[str, any]):
+    print('Comandos disponíveis:')
+    print('\n'.join([f'{k} \t\t:\t\t {v["h"]}' for k, v in commands.items()]))
+    print('\n')
+
+commands['help']['f'] = help
 
 
 
@@ -235,9 +259,7 @@ if '__main__' == __name__:
         end=''
     )
 
-    print('Comandos disponíveis:')
-    print('\n'.join([f'{k} \t\t:\t\t {v["h"]}' for k, v in commands.items()]))
-    print('\n')
+    help({}, [])
 
     # Loop de execução
     while True:

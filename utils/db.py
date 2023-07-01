@@ -23,11 +23,11 @@ def load_env():
     user = os.environ.get('BD_USER')
     pw = os.environ.get('BD_PW')
 
-    print('')
+    print('\n')
     if None == user: user = input('USER NAME: ')
     if None == pw: pw = getpass.getpass('Password: ')
 
-    print('Conectando...')
+    print('Conectando...', end='')
 
     return {'user': user, 'pw': pw}
 
