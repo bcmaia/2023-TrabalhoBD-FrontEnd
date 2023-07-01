@@ -15,7 +15,9 @@ print(' pronto!\n\n', end='')
 # Parse params
 # Lê uma string e analiza os parametros, filtrando --flags.
 def parse_params (params : list[str]):
-    if not params.strip(): return {'flags': {}, 'params': []}
+    params = [s.strip() for s in params]
+    params = [s for s in params if s]
+    if not params: return {'flags': {}, 'params': []}
 
     myFlags = {}
     myParams = []
