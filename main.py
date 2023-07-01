@@ -24,17 +24,44 @@ def parse_params (params : list[str]):
     hungry_flag = ''
 
     for i in params[1:]:
+        # Removendo espaços que escaparam a primeira remoção
+        if not hungry_param:
+            if "'" == i[0] or '"' == i[0]:
+                i = i.lstrip()
+            else:
+                i = i.strip()
+        elif "'" == i[-1] or '"' == i[-1]:
+                i = i.rstrip()
+
+        # Entre aspas e não achamos a ultima aspa
         if hungry_param and not ("'" == i[-1] or '"' == i[-1]):
             hungry_param += ' ' + i
         
+        # Entre aspas e achamos a ultima aspa
         elif hungry_param and ("'" == i[-1] or '"' == i[-1]):
             hungry_param += ' ' + i[0 : (len(i) - 1)]
-            myParams.append(hungry_param)
-            hungry_param = ''
+            
+            if hungry_flag: # A flag roubou o texto
+                myFlags[hungry_flag] = hungry_param
+                hungry_flag = ''
+            else: # A flag roubou o texto
+                myParams.append(hungry_param)
+
+            # achamos a ultima aspa, esntão a fome do parametro foi saciada
+            hungry_param = '' 
         
 
         elif ("'" == i[0] or '"' == i[0]) and ("'" == i[-1] or '"' == i[-1]):
-            myParams.append(i[1:(len(i) - 1)])
+            hungry_param = i[1:(len(i) - 1)]
+
+            if hungry_flag: # A flag roubou o texto
+                myFlags[hungry_flag] = hungry_param
+                hungry_flag = ''
+            else: # A flag roubou o texto
+                myParams.append(hungry_param)
+
+            # achamos a ultima aspa, esntão a fome do parametro foi saciada
+            hungry_param = '' 
 
         elif "'" == i[0] or '"' == i[0]: # implicit and not ("'" == i[-1] or '"' == i[-1])
             hungry_param = i[1:]
@@ -124,6 +151,12 @@ def insert(params : list[str], flags : dict[str, any]):
 # SEARCH SITE
 def search(params : list[str], flags : dict[str, any]):
     print('BUSCANDO...')
+
+    if global_state['debug']: 
+        print('SEARCH RECEBE (param):')
+        print(params)
+        print('SEARCH RECEBE (flags):')
+        print(flags)
 
     # Temos o parametro padrão de busca
     val = params[0] if params else None
@@ -280,7 +313,7 @@ if '__main__' == __name__:
         if not params: continue # Avoiding erros
 
         # qual comando será executado?
-        cmd = commands.get(params[0])
+        cmd = commands.get(params[0].strip())
 
         # Saida do loop
         print ('- ', end='')
